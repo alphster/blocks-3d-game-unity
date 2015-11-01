@@ -3,7 +3,7 @@ using System.Collections;
 
 public class BlockMovement : MonoBehaviour {
 
-    public float moveSpeed = 15f;
+    public float moveSpeed = 10f;
     public float fallSpeed = 1f;
 
     GameObject activeBlock;
@@ -43,22 +43,30 @@ public class BlockMovement : MonoBehaviour {
             {
                 SmoothMove(activeBlock.transform.position, activeBlock.transform.position + new Vector3(0, -1, 0));
             }
+			else if (Input.GetKeyDown(KeyCode.Q))
+			{
+				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, 0, 90) * activeBlock.transform.rotation);
+			}
             else if (Input.GetKeyDown(KeyCode.W))
             {
-                SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(activeBlock.transform.rotation.x, activeBlock.transform.rotation.y + 90, activeBlock.transform.rotation.z));
-            }
+				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(90, 0, 0) * activeBlock.transform.rotation);
+			}
+			else if (Input.GetKeyDown(KeyCode.E))
+			{
+				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, 0, -90) * activeBlock.transform.rotation);
+			}
             else if (Input.GetKeyDown(KeyCode.A))
             {
-                SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(activeBlock.transform.rotation.x, 90, activeBlock.transform.rotation.z));
-            }
+				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, 90, 0) * activeBlock.transform.rotation);
+			}
             else if (Input.GetKeyDown(KeyCode.S))
             {
-                SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(activeBlock.transform.rotation.x, 90, activeBlock.transform.rotation.z));
-            }
+				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(-90, 0, 0) * activeBlock.transform.rotation);
+			}
             else if (Input.GetKeyDown(KeyCode.D))
             {
-                SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(activeBlock.transform.rotation.x, 90, activeBlock.transform.rotation.z));
-            }
+				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, -90, 0) * activeBlock.transform.rotation);
+			}
         }
         else
         {
