@@ -3,10 +3,15 @@ using System.Collections;
 
 public class BlockMovement : MonoBehaviour {
 
-    public float moveSpeed = 10f;
-    public float fallSpeed = 1f;
+	public GameObject BLOCK;
+	GameObject activeBlock;
 
-    GameObject activeBlock;
+	float moveSpeed = 10f;
+	float defaultFallSpeed = 1f;
+    float fallSpeed = 1f;
+
+	float currentDepth = 1f;
+	float nextDepth = 2f;
 
     bool isFalling = true;
     bool isMoving = false;
@@ -19,7 +24,10 @@ public class BlockMovement : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         // get the active block
-        activeBlock = GameObject.FindGameObjectWithTag("Player");
+        //activeBlock = GameObject.FindGameObjectWithTag("Player");
+		activeBlock = (GameObject)GameObject.Instantiate(BLOCK, new Vector3(-2, -2, 1), Quaternion.identity);
+		activeBlock.transform.position = new Vector3(-2, -2, 1);
+
 	}
 
     // Update is called once per frame
@@ -67,6 +75,13 @@ public class BlockMovement : MonoBehaviour {
             {
 				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, -90, 0) * activeBlock.transform.rotation);
 			}
+
+			fallSpeed = defaultFallSpeed;
+			if (Input.GetKey(KeyCode.Space)) 
+			{
+				fallSpeed = 20f;
+			}
+			Debug.Log (fallSpeed);
         }
         else
         {
@@ -79,11 +94,23 @@ public class BlockMovement : MonoBehaviour {
                 SmoothRotate();
             }
         }
-
         if (isFalling)
         {
             activeBlock.transform.position += new Vector3(0, 0, fallSpeed * Time.deltaTime);
+			if (activeBlock.transform.position.z >= nextDepth) {
+				currentDepth = nextDepth;
+				nextDepth++;
+
+				if (currentDepth == 10)
+				{
+					activeBlock.transform.position = new Vector3(activeBlock.transform.position.x, activeBlock.transform.position.y, 10);
+					activeBlock = (GameObject)GameObject.Instantiate(BLOCK, new Vector3(-2, -2, 1), Quaternion.identity);
+					currentDepth = 1;
+					nextDepth = 2;
+				}
+			}
         }
+
     }
 
     private void SmoothMove(Vector3 start, Vector3 end)
