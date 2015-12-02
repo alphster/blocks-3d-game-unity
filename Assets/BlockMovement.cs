@@ -3,7 +3,17 @@ using System.Collections;
 
 public class BlockMovement : MonoBehaviour {
 
-	public GameObject BLOCK;
+	public GameObject BLOCKSMALL;
+	public GameObject BLOCKSTICK;
+	public GameObject BLOCKL;
+	public GameObject BLOCKSQUARE;
+
+	public Material MATRED;
+	public Material MATBLUE;
+	public Material MATGREEN;
+
+
+	BlockFactory blockFactory;
 	GameObject activeBlock;
 
 	float moveSpeed = 10f;
@@ -22,12 +32,18 @@ public class BlockMovement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
+		blockFactory = new BlockFactory(BLOCKSMALL, BLOCKSTICK, BLOCKL, BLOCKSQUARE
+		                                , MATRED, MATBLUE, MATGREEN);
 		initGrid();
         // get the active block
         //activeBlock = GameObject.FindGameObjectWithTag("Player");
-		activeBlock = (GameObject)GameObject.Instantiate(BLOCK, new Vector3(-2, -2, 1), Quaternion.identity);
-		activeBlock.transform.position = new Vector3(-2, -2, 1);
+		activeBlock = (GameObject)GameObject.Instantiate(blockFactory.GetNextBlock(), new Vector3(0, 0, 1), Quaternion.identity);
+		activeBlock.transform.position = new Vector3(0, 0, 1);
+		foreach (MeshRenderer mr in activeBlock.GetComponentsInChildren<MeshRenderer>())
+		{
+			Debug.Log("here");
+			mr.material = MATBLUE;
+		}
 
 	}
 
@@ -70,27 +86,51 @@ public class BlockMovement : MonoBehaviour {
             }
 			else if (Input.GetKeyDown(KeyCode.Q))
 			{
-				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, 0, 90) * activeBlock.transform.rotation);
+				Vector3 futurePos = activeBlock.transform.position;
+				Quaternion futureRot = Quaternion.Euler(0, 0, 90) * activeBlock.transform.rotation;
+				if (!IsPositionBlocked(futurePos, futureRot)) {
+					SmoothRotate(activeBlock.transform.rotation, futureRot);
+				}
 			}
             else if (Input.GetKeyDown(KeyCode.W))
             {
-				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(90, 0, 0) * activeBlock.transform.rotation);
+				Vector3 futurePos = activeBlock.transform.position;
+				Quaternion futureRot = Quaternion.Euler(90, 0, 0) * activeBlock.transform.rotation;
+				if (!IsPositionBlocked(futurePos, futureRot)) {
+					SmoothRotate(activeBlock.transform.rotation, futureRot);
+				}
 			}
 			else if (Input.GetKeyDown(KeyCode.E))
 			{
-				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, 0, -90) * activeBlock.transform.rotation);
+				Vector3 futurePos = activeBlock.transform.position;
+				Quaternion futureRot = Quaternion.Euler(0, 0, -90) * activeBlock.transform.rotation;
+				if (!IsPositionBlocked(futurePos, futureRot)) {
+					SmoothRotate(activeBlock.transform.rotation, futureRot);
+				}
 			}
             else if (Input.GetKeyDown(KeyCode.A))
             {
-				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, 90, 0) * activeBlock.transform.rotation);
+				Vector3 futurePos = activeBlock.transform.position;
+				Quaternion futureRot = Quaternion.Euler(0, 90, 0) * activeBlock.transform.rotation;
+				if (!IsPositionBlocked(futurePos, futureRot)) {
+					SmoothRotate(activeBlock.transform.rotation, futureRot);
+				}
 			}
             else if (Input.GetKeyDown(KeyCode.S))
             {
-				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(-90, 0, 0) * activeBlock.transform.rotation);
+				Vector3 futurePos = activeBlock.transform.position;
+				Quaternion futureRot = Quaternion.Euler(-90, 0, 0) * activeBlock.transform.rotation;
+				if (!IsPositionBlocked(futurePos, futureRot)) {
+					SmoothRotate(activeBlock.transform.rotation, futureRot);
+				}
 			}
             else if (Input.GetKeyDown(KeyCode.D))
             {
-				SmoothRotate(activeBlock.transform.rotation, Quaternion.Euler(0, -90, 0) * activeBlock.transform.rotation);
+				Vector3 futurePos = activeBlock.transform.position;
+				Quaternion futureRot = Quaternion.Euler(0, -90, 0) * activeBlock.transform.rotation;
+				if (!IsPositionBlocked(futurePos, futureRot)) {
+					SmoothRotate(activeBlock.transform.rotation, futureRot);
+				}
 			}
 
 			fallSpeed = defaultFallSpeed;
@@ -98,7 +138,7 @@ public class BlockMovement : MonoBehaviour {
 			{
 				fallSpeed = 20f;
 			}
-			Debug.Log (fallSpeed);
+			//Debug.Log (fallSpeed);
         }
         else
         {
@@ -127,7 +167,7 @@ public class BlockMovement : MonoBehaviour {
 						(int)Mathf.Round(activeBlock.transform.position.z));
 					SetPositionBlocked();
 
-					activeBlock = (GameObject)GameObject.Instantiate(BLOCK, new Vector3(-2, -2, 1), Quaternion.identity);
+					activeBlock = (GameObject)GameObject.Instantiate(blockFactory.GetNextBlock(), new Vector3(0, 0, 1), Quaternion.identity);
 					zNextCheckPoint = 1;
 				}
 			}
@@ -152,19 +192,39 @@ public class BlockMovement : MonoBehaviour {
 	}
 
 	private bool IsPositionBlocked(Vector3 futurePos, Quaternion futureRot) {
+		foreach (Transform cube in activeBlock.transform.GetComponentsInChildren<Transform>())
+		{
+			if (cube.childCount == 0)
+			{
+				//Debug.Log ("Cube Pos: " + cube.position);
+				//Debug.Log ("Future Pos: " + futurePos);
+				if (blocked[
+				            (int)Mathf.Round (futurePos.x + (cube.position.x - activeBlock.transform.position.x)) + 3, 
+				            (int)Mathf.Round (futurePos.y + (cube.position.y - activeBlock.transform.position.y)) + 3, 
+				            (int)Mathf.Round (futurePos.z + (cube.position.z - activeBlock.transform.position.z))])
+					return true;
+			}
+		}
+		return false;
 
-		if (blocked[
+		/*if (blocked[
 			(int)Mathf.Round (futurePos.x) + 3, (int)Mathf.Round (futurePos.y) + 3, (int)Mathf.Round (futurePos.z)])
 			return true;
-		return false;
+		return false;*/
 	}
 
 	private void SetPositionBlocked() // uses activeBlock
 	{
-		int i = (int)Mathf.Round (activeBlock.transform.position.x) + 3;
-		int j = (int)Mathf.Round (activeBlock.transform.position.y) + 3;
-		int k = (int)Mathf.Round (activeBlock.transform.position.z);
-		blocked[i,j,k] = true;
+		foreach (Transform cube in activeBlock.transform.GetComponentsInChildren<Transform>())
+		{
+			if (cube.childCount == 0)
+			{
+				int i = (int)Mathf.Round (cube.transform.position.x) + 3;
+				int j = (int)Mathf.Round (cube.transform.position.y) + 3;
+				int k = (int)Mathf.Round (cube.transform.position.z);
+				blocked[i,j,k] = true;
+			}
+		}
 
 	}
 
